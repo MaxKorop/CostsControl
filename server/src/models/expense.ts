@@ -5,7 +5,7 @@ const expenseSchema: Schema = new Schema({
         type: String,
         required: true
     },
-    price: {
+    amount: {
         type: Number,
         required: true
     },

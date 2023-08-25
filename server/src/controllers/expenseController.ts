@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 export class ExpenseController {
 
     async addExpense(req: Request, res: Response): Promise<void>{
-        let { name, price, date, type } = req.body;
+        let { name, amount, date, type } = req.body;
         type = type || "Default expense";
         date = date || new Date()
             .toLocaleDateString()
@@ -13,7 +13,7 @@ export class ExpenseController {
             .reverse()
             .join('-');
 
-        const expense = await Expense.create({ name, price, date, type });
+        const expense = await Expense.create({ name, amount, date, type });
 
         res.json(expense);
     }

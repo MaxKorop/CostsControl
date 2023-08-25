@@ -7,9 +7,6 @@ const groupSchema: Schema = new Schema({
     },
     expenses: {
         type: Array<ObjectId>
-    },
-    incomes: {
-        type: Array<ObjectId>
     }
 });
 

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { Group } from "../models/group";
 import { Expense } from "../models/expense";
-import { Income } from "../models/income";
 import { ObjectId } from "mongodb";
 
 export class GroupController {
@@ -35,13 +34,12 @@ export class GroupController {
 
         const group = await Group.findById({ _id: groupId });
 
-        let expenses, incomes;
+        let expenses;
         if (group) {
             expenses = await Expense.find({ _id: { $in: group.expenses } });
-            incomes = await Income.find({ _id: { $in: group.incomes } });   
         }
 
-        res.json({ expenses, incomes });
+        res.json({ expenses });
     }
 
     async changeGroup(req: Request, res: Response): Promise<void>{
