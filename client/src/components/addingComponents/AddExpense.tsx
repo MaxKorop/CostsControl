@@ -2,8 +2,9 @@ import React, { useContext, useState } from "react";
 import { Button, Container, Form } from "react-bootstrap"
 import { Context } from "../..";
 import { IAddExpense } from "../../interfaces";
+import { addExpense } from "../../http/expensesAPI";
 
-export const AddExpense: React.FC<IAddExpense> = ({ groupId }) => {
+export const AddExpense: React.FC<IAddExpense> = ({ groupId, updateState, updateStateFunc }) => {
     const { user } = useContext(Context);
 
     const [isVisibleBlock, setIsVisibleBlock] = useState<boolean>(false);
@@ -12,15 +13,26 @@ export const AddExpense: React.FC<IAddExpense> = ({ groupId }) => {
     const [expenseAmount, setExpenseAmount] = useState<number>(0);
 
     const checkExpenseName = (): boolean => {
-        return user.expenses.some((group) => expenseName === group.name);
+        const group = user.groups.find((group) => group._id === groupId);
+        if (group) {
+            return user.expenses.some((expense) => expense._id in group.expenses && expenseName === expense.name);            
+        } else return user.expenses.some((expense) =>expenseName === expense.name);
     }
     const addExpenseAndClose = (): void => {
-        user.addNewExpense(groupId, expenseName, expenseType, expenseAmount);
+        addExpense(groupId, expenseName, expenseType, new Date().toISOString().slice(0, 10), expenseAmount)
+            .then((result) => {
+                const groupIndex = user.groups.findIndex(g => g._id === groupId);
+                user.groups[groupIndex].expenses = result.expenses;
+                user.expenses.push(result.expense);
+                updateStateFunc(!updateState);
+            });
         setIsVisibleBlock(!isVisibleBlock);
     }
 
     return (
-        <Container className="d-flex flex-column justify-content-center align-items-center mt-2">
+        <Container className="d-flex flex-column justify-content-center align-items-center mt-2" style={{
+            position: "relative"
+        }}>
             <div className="mb-3" onClick={() => { setIsVisibleBlock(!isVisibleBlock) }}>
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 1V21" stroke="#0086A1" strokeLinecap="round" />

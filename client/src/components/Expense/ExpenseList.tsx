@@ -13,7 +13,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
     return (
         <Container style={{height: "auto", flexBasis: "65%", flexShrink: 0}} className="mt-5">
             {list.map(item => {
-                return <Expense key={item.id} item={item} />
+                return <Expense key={item._id} item={item} />
             })}
         </Container>
     )

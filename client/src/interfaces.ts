@@ -2,17 +2,19 @@ import { HTMLProps } from "react"
 import { ButtonProps } from "react-bootstrap"
 
 export interface IGroup {
-    id: string,
+    _id: string,
     name: string,
-    expensesId: Array<string>
+    expenses: Array<string>,
+    __v: number
 }
 
 export interface IExpense {
-    id: string,
+    _id: string,
     name: string,
     amount: number,
     date: string,
-    type: string
+    type: string,
+    __v: number
 }
 
 export interface ExpenseProps {
@@ -32,5 +34,13 @@ export interface GroupListProps {
 }
 
 export interface IAddExpense extends HTMLProps<ButtonProps> {
-    groupId: string
+    groupId: string,
+    updateState: boolean,
+    updateStateFunc: Function
+}
+
+export interface IUser {
+    name?: string,
+    email?: string,
+    groups?: string[],
 }

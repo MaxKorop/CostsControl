@@ -1,27 +1,31 @@
 import { IExpense, IGroup } from "./interfaces";
 
 export class Group implements IGroup  {
-    public id: string;
+    public _id: string;
     public name: string;
-    public expensesId: Array<string>;
-    constructor(id: string, groupName: string) {
-        this.id = id;
+    public expenses: Array<string>;
+    public __v: number;
+    constructor(id: string, groupName: string, __v?: number) {
+        this._id = id;
         this.name = groupName;
-        this.expensesId = []
+        this.expenses = [];
+        this.__v = __v || 0;
     }
 }
 
 export class Expense implements IExpense {
-    public id: string;
+    public _id: string;
     public name: string;
     public amount: number;
     public date: string;
     public type: string;
-    constructor(id: string, name: string, amount: number, type: string) {
-        this.id = id;
+    public __v: number;
+    constructor(id: string, name: string, amount: number, type: string, __v?: number) {
+        this._id = id;
         this.name = name;
         this.amount = amount;
         this.type = type;
-        this.date = new Date().toISOString().slice(0, 10)
+        this.date = new Date().toISOString().slice(0, 10);
+        this.__v = __v || 0;
     }
 }

@@ -25,7 +25,7 @@ export class UserController {
             return next(ApiError.badRequest("Incorrect email or password"));
         }
         const candidate = await User.find({ email });
-        if (typeof candidate === 'undefined') {
+        if (candidate.length >= 1) {
             return next(ApiError.badRequest("User with this email already exists"));
         }
         const hashPassword = await bcrypt.hash(password, 3);
@@ -59,18 +59,19 @@ export class UserController {
 
     async addGroup(req: Request, res: Response): Promise<void>{
         let { user } = req.query as any;
-        const { groupId } = req.body;
+        const { groupName } = req.body;
 
         const { name, email } = user;
         let group;
-        if (typeof groupId === 'string') {
-            group = new ObjectId(groupId);
-            user = await User.findOneAndUpdate({ name, email }, { $push: { groups: group } });   
+        if (typeof groupName === 'string') {
+            group = await Group.create({ name: groupName });
+            user = await User.findOneAndUpdate({ name, email }, { $push: { groups: group.id } });   
         }
         user = await User.findOne({ name, email });
-        const groups = user.groups;
+        console.log(user);
+        const token = generateToken(user.name, user.email, user.groups);
 
-        res.json({ user });
+        res.json({ token });
     }
 
 }

@@ -4,20 +4,6 @@ import { ObjectId } from "mongodb";
 
 export class ExpenseController {
 
-    async addExpense(req: Request, res: Response): Promise<void>{
-        let { name, amount, date, type } = req.body;
-        type = type || "Default expense";
-        date = date || new Date()
-            .toLocaleDateString()
-            .split('.')
-            .reverse()
-            .join('-');
-
-        const expense = await Expense.create({ name, amount, date, type });
-
-        res.json(expense);
-    }
-
     async getExpenses(req: Request, res: Response): Promise<void>{
         const { expensesId } = req.query;
 
@@ -30,16 +16,7 @@ export class ExpenseController {
         
         const expenses = await Expense.find({ '_id': { $in: ids } });
 
-        res.json(expenses);
-    }
-
-    async getOneExpense(req: Request, res: Response): Promise<void>{
-        const { id } = req.params;
-        const expenseId = new ObjectId(id);
-
-        const expense = await Expense.findById({ _id: expenseId });
-
-        res.json(expense);
+        res.json({ expenses });
     }
 
     async changeExpense(req: Request, res: Response): Promise<void>{

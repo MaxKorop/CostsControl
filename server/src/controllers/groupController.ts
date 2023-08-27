@@ -5,18 +5,9 @@ import { ObjectId } from "mongodb";
 
 export class GroupController {
 
-    async addGroup(req: Request, res: Response): Promise<void>{
-        let { name } = req.body;
-        name = name || "Default Group"
-
-        const group = await Group.create({ name });
-
-        res.json(group);
-    }
-
     async getGroups(req: Request, res: Response): Promise<void>{
         const { groupsId } = req.query;
-
+        
         let ids: Array<ObjectId> = [];
         if (Array.isArray(groupsId)) {
             groupsId.map(id => {
@@ -25,21 +16,21 @@ export class GroupController {
         }
         
         const groups = await Group.find({ _id: { $in: ids } });
-
-        res.json(groups);
+        res.json({ groups });
     }
 
-    async getOneGroup(req: Request, res: Response): Promise<void>{
-        const groupId = req.params.id;
+    async addExpense(req: Request, res: Response): Promise<void>{
+        const { groupId, expenseName, expenseType, expenseDate, expenseAmount } = req.body;
 
-        const group = await Group.findById({ _id: groupId });
-
-        let expenses;
-        if (group) {
-            expenses = await Expense.find({ _id: { $in: group.expenses } });
+        let expense;
+        if (typeof expenseName === 'string' && typeof expenseType === 'string' && typeof expenseDate === 'string' && typeof expenseAmount === 'number') {
+            expense = await Expense.create({ name: expenseName, amount: expenseAmount, date: expenseDate, type: expenseType });
+            const updated = await Group.updateOne({ _id: groupId }, { $push: { expenses: expense.id } });   
         }
+        const group = await Group.findOne({ _id: groupId });
+        const expenses = group?.expenses;
 
-        res.json({ expenses });
+        res.json({ expense, expenses });
     }
 
     async changeGroup(req: Request, res: Response): Promise<void>{

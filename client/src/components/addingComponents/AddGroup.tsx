@@ -1,6 +1,8 @@
 import React, { useContext, useState } from "react"
 import { Button, ButtonProps, Container, Form } from "react-bootstrap"
 import { Context } from "../..";
+import { addGroup } from "../../http/userAPI";
+import { IUser } from "../../interfaces";
 
 export const AddGroup: React.FC<ButtonProps> = () => {
 
@@ -13,6 +15,11 @@ export const AddGroup: React.FC<ButtonProps> = () => {
         return user.groups.some((group) => groupName === group.name);
     }
 
+    const createGroup = async () => {
+        const data = await addGroup(groupName) as IUser;
+        user.user = data;
+    }
+
     return (
         <Container className="d-flex flex-column justify-content-center align-items-center mt-4">
             <div className="mb-5" onClick={() => { setIsVisibleBlock(!isVisibleBlock) }}>
@@ -21,18 +28,18 @@ export const AddGroup: React.FC<ButtonProps> = () => {
                     <path d="M52 27H2" stroke="#0086A1" strokeWidth="3" strokeLinecap="round"/>
                 </svg>
             </div>
-            {isVisibleBlock ? <Container style={{ position: "absolute", top: "23%", height: "auto", width: "160px", zIndex: "999", backgroundColor: "#161b1caa" }} className="d-flex flex-column justify-content-center rounded-4">
+            {isVisibleBlock && <Container style={{ position: "absolute", top: "23%", height: "auto", width: "160px", zIndex: "999", backgroundColor: "#161b1caa" }} className="d-flex flex-column justify-content-center rounded-4">
                 <Form className="m-3">
                     <Form.Control placeholder="Type name of group here..." onChange={(e) => setGroupName(e.target.value)}/>
                 </Form>
                 <Button
                     className="mb-3"
                     style={{ backgroundColor: "#0086A1", borderColor: "#0086A1" }}
-                    onClick={() => { checkGroupName() ? alert("The group name should be unique") : user.addNewGroup(groupName) }}
+                    onClick={() => { checkGroupName() ? alert("The group name should be unique") : createGroup() }}
                 >
                     Add group
                 </Button>
-            </Container> : <></>}
+            </Container>}
         </Container>
     )
 }

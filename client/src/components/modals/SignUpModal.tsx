@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { ModalProps } from "react-bootstrap";
+import { login, registration } from "../../http/userAPI";
+import { Context } from "../..";
+import { IUser } from "../../interfaces";
 
 export const SignUp: React.FC<ModalProps> = ({ show, onHide }) => {
 
+    const { user } = useContext(Context);
     const [isSignUp, setIsSignUp] = useState<boolean>(true);
     const [name, setName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
@@ -33,6 +37,22 @@ export const SignUp: React.FC<ModalProps> = ({ show, onHide }) => {
         else setIsValidPassword(false);
     }
 
+    const click = async () => {
+        let data;
+        try {
+            isSignUp ?
+                data = await registration(name, email, password) as IUser:
+                data = await login(email, password) as IUser;
+            if (data) {
+                user.isAuth = true;
+                user.user = { name: data.name, email: data.email, groups: data.groups };
+            }
+            if(onHide) onHide();
+        } catch (error: any) {
+            alert(error);
+        }
+    }
+
     return (
         <Modal
             show={show}
@@ -46,12 +66,12 @@ export const SignUp: React.FC<ModalProps> = ({ show, onHide }) => {
 
             <Modal.Body style={{backgroundColor: "#2C3639"}}>
                 <Form className="mt-2 mb-2">
-                    {isSignUp ? <Form.Control placeholder="Type your name here..." type="email" className="mt-3" onChange={(e) => { checkAndSetName(e.target.value) }} /> : null}
-                    {isSignUp && !isValidName ? <p style={{ color: 'red', marginTop: '3px', marginLeft: "7px" }}>Your name is invalid</p> : null }
+                    {isSignUp ? <Form.Control placeholder="Type your name here..." type="text" className="mt-3" onChange={(e) => { checkAndSetName(e.target.value) }} /> : null}
+                    {isSignUp && !isValidName ? <p style={{ color: 'red', marginTop: '3px', marginLeft: "7px", fontSize: "13px" }}>Your name is invalid</p> : null }
                     <Form.Control placeholder="Type your email here..." type="email" className="mt-3" onChange={(e) => { checkAndSetEmail(e.target.value) }} />
-                    {!isValidEmail ? <p style={{ color: 'red', marginTop: '3px', marginLeft: "7px" }}>Your email is invalid</p> : null }
+                    {!isValidEmail ? <p style={{ color: 'red', marginTop: '3px', marginLeft: "7px", fontSize: "13px" }}>Your email is invalid</p> : null }
                     <Form.Control placeholder="Type your password here..." type="password" className="mt-3" onChange={(e) => { checkAndSetPassword(e.target.value) }} />
-                    {!isValidPassword ? <p style={{ color: 'red', marginTop: '3px', marginLeft: "7px" }}>Your password is invalid</p> : null }
+                    {!isValidPassword ? <p style={{ color: 'red', marginTop: '3px', marginLeft: "7px", fontSize: "13px" }}>Your password is invalid</p> : null }
                 </Form>
                 <Col className='d-flex justify-content-between mt-3 pl-3 pr-3'>
                     { isSignUp ? <div>
@@ -63,7 +83,7 @@ export const SignUp: React.FC<ModalProps> = ({ show, onHide }) => {
             </Modal.Body>
             {isSignUp ? <Modal.Footer style={{ backgroundColor: "#2C3639" }}>
                 { isValidName && isValidEmail && isValidPassword ?
-                    <Button style={{ backgroundColor: "#0086A1", borderColor: "#0086A1" }} onClick={onHide}>
+                    <Button style={{ backgroundColor: "#0086A1", borderColor: "#0086A1" }} onClick={click}>
                         Sign Up
                     </Button> : <Button style={{ backgroundColor: "#0086A1", borderColor: "#0086A1" }} onClick={() => alert("Type valid name, email or password")}>
                         Sign Up
@@ -71,7 +91,7 @@ export const SignUp: React.FC<ModalProps> = ({ show, onHide }) => {
                 }                
             </Modal.Footer> : <Modal.Footer style={{ backgroundColor: "#2C3639" }}>
                 { isValidEmail && isValidPassword ?
-                    <Button style={{ backgroundColor: "#0086A1", borderColor: "#0086A1" }} onClick={onHide}>
+                    <Button style={{ backgroundColor: "#0086A1", borderColor: "#0086A1" }} onClick={click}>
                     Sign In
                     </Button> : <Button style={{ backgroundColor: "#0086A1", borderColor: "#0086A1" }} onClick={() => alert("Type valid email or password")}>
                         Sign In

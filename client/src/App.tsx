@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { SignUp } from './components/modals/SignUpModal';
 import { NavBar } from './components/NavBar';
 import { GroupList } from './components/Group/GroupList';
+import { Context } from '.';
 
 function App() {
 
   const [signUpVisible, setSignUpVisible] = useState<boolean>(true);
+
+  const { user } = useContext(Context);
 
   const onHideSignUp = (): void => {
     setSignUpVisible(!signUpVisible)
@@ -14,7 +17,7 @@ function App() {
   return (
     <>
       <NavBar />
-      <SignUp show={signUpVisible} onHide={onHideSignUp} />
+      {!user.isAuth && <SignUp show={signUpVisible} onHide={onHideSignUp} />}
       <GroupList/>
     </>
   );
