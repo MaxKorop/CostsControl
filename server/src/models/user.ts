@@ -1,4 +1,5 @@
-import mongoose, { ObjectId, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { IExpense } from "./expense";
 
 const userSchema: Schema = new Schema({
     name: {
@@ -16,8 +17,8 @@ const userSchema: Schema = new Schema({
     moneyAmount: {
         type: Number
     },
-    groups: {
-        type: Array<ObjectId>
+    expenses: {
+        type: Array<IExpense>
     }
 });
 

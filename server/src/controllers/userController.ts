@@ -3,13 +3,12 @@ import bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { User } from "../models/user";
 import { ApiError } from "../error/apiError";
-import { ObjectId } from "mongodb";
-import { Group } from "../models/group";
+import { IExpense } from "../models/expense";
 
-const generateToken = (name: string, email: string, groups: Array<ObjectId>): any => {
+const generateToken = (name: string, email: string, expenses: Array<IExpense>): any => {
     if (typeof process.env.JWT_SECRET_KEY === 'string') {
         return jwt.sign(
-            { name, email, groups }, 
+            { name, email, expenses }, 
             process.env.JWT_SECRET_KEY,
             { expiresIn: '24h' }
         );
@@ -30,7 +29,7 @@ export class UserController {
         }
         const hashPassword = await bcrypt.hash(password, 3);
         let user = await User.create({ name, email, password: hashPassword, moneyAmount });
-        const token = generateToken(user.name, user.email, user.groups);
+        const token = generateToken(user.name, user.email, user.expenses);
         res.json({ token });
     }
 
@@ -44,34 +43,28 @@ export class UserController {
         if (!comparePassword) {
             return next(ApiError.internal("Incorrect password"));
         }
-        const token = generateToken(user.name, user.email, user.groups);
+        const token = generateToken(user.name, user.email, user.expenses);
         res.json({ token });
     }
 
     async check(req: Request, res: Response, next: NextFunction): Promise<void>{
-        const user = req.query.user as any;
+        const user = req.user;
         let token;
         if (typeof user.name === 'string' && typeof user.email === 'string' ) {
-            token = generateToken(user.name, user.email, user.groups);   
+            token = generateToken(user.name, user.email, user.expenses);   
         }
         res.json({ token });
     }
 
-    async addGroup(req: Request, res: Response): Promise<void>{
-        let { user } = req.query as any;
-        const { groupName } = req.body;
-
-        const { name, email } = user;
-        let group;
-        if (typeof groupName === 'string') {
-            group = await Group.create({ name: groupName });
-            user = await User.findOneAndUpdate({ name, email }, { $push: { groups: group.id } });   
-        }
+    async addExpense(req: Request, res: Response, next: NextFunction): Promise<any>{
+        const { name, email } = req.user;
+        const { amount, date, category, expenseType, note } = req.body;
+        const newExpense: IExpense = { amount, date, category, expenseType, note };
+        if (!amount || !date || !category || !expenseType)
+            return next(ApiError.badRequest("Incorrect data"));
+        let user = await User.findOneAndUpdate({ name, email }, { $push: { expenses: newExpense } });  
         user = await User.findOne({ name, email });
-        console.log(user);
-        const token = generateToken(user.name, user.email, user.groups);
-
+        const token = generateToken(user?.name, user?.email, user?.expenses);
         res.json({ token });
     }
-
 }
